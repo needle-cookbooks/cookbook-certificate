@@ -22,7 +22,7 @@ def whyrun_supported?
 end
 
 action :create do
-  ssl_item = Chef::EncryptedDataBagItem.load(new_resource.data_bag, new_resource.search_id)
+  ssl_item = load_ssl_item(new_resource.data_bag, new_resource.search_id)
 
   cert_directory_resource "certs"
   cert_directory_resource "private", :private => true
@@ -30,6 +30,10 @@ action :create do
   cert_file_resource "certs/#{new_resource.cert_file}",  ssl_item['cert']
   cert_file_resource "certs/#{new_resource.chain_file}", ssl_item['chain']
   cert_file_resource "private/#{new_resource.key_file}", ssl_item['key'], :private => true
+end
+
+def load_ssl_item(data_bag, search_id)
+  Chef::EncryptedDataBagItem.load(data_bag, search_id)
 end
 
 def cert_directory_resource(dir, options = {})
